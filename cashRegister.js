@@ -1,51 +1,51 @@
-function getChanges(change, cid){
+function getChanges(changes, cid){
 	var iter = moneyMap.entries();
 	var val = iter.next().value;
 	var cidMap = new Map(cid);
-	var info = {status:"", change:[]};
-	if (change >= val[1]) {
+	var changesInfo = {status:"", changes:[]};
+	if (changes >= val[1]) {
 	//more than one humdred dollars
 	//do nothing
 	} else {
-		while (change < val[1]){
+		while (changes < val[1]){
 			val = iter.next().value;
 		}};
 	let count = 0;
-	while (change > 0){
+	while (changes > 0){
 		if (typeof val === "undefined"){
-			info.status = "INSUFFICIENT_FUNDS";
-			info.change = [];
-			return (info);
+			changesInfo.status = "INSUFFICIENT_FUNDS";
+			changesInfo.changes = [];
+			return (changesInfo);
 		}
 		let drawerCash = cidMap.get(val[0]);
-		let remaining = (change - drawerCash).toFixed(2);
+		let remaining = (changes - drawerCash).toFixed(2);
 		if (remaining > 0)
 		{
-			change = remaining;
-			info.change.push ([val[0], drawerCash]);
+			changes = remaining;
+			changesInfo.changes.push ([val[0], drawerCash]);
 		} else if (remaining === 0)
 		{
-			change -= remaining;
-			change = change.toFixed(2);
-			info.status = 'OPEN';
-			info.change.push([val[0], drawerCash]);
+			changes -= remaining;
+			changes = changes.toFixed(2);
+			changesInfo.status = 'OPEN';
+			changesInfo.changes.push([val[0], drawerCash]);
 		}
 		else {
 			//remaining < 0
 			//toFixed will return string
-			let neededCash = Number(((Math.floor(change/val[1])) * val[1]).toFixed(2));
+			let neededCash = Number(((Math.floor(changes/val[1])) * val[1]).toFixed(2));
 			if (neededCash > 0){
-				change = Number((change - neededCash).toFixed(2));
-				info.change.push([val[0], neededCash]);
+				changes = Number((changes - neededCash).toFixed(2));
+				changesInfo.changes.push([val[0], neededCash]);
 			}
 		}
 		val = iter.next().value;
 	}
-	if (info.status === ""){
-		info.status = 'OPEN';
+	if (changesInfo.status === ""){
+		changesInfo.status = 'OPEN';
 	}
 
-	return info;
+	return changesInfo;
 }
 
 
@@ -63,7 +63,7 @@ const moneyMap = new Map([["ONE HUNDRED", 100], ["TWENTY", 20], ["TEN", 10], ["F
 
 function checkCashRegister(price, cash, cid){
 	console.log("price = ", price, ", cash = ", cash);
-	var info = {status:"none", change:[]};
+	var changesDetail = {status:"none", changes:[]};
 	
 
 	var totalMoney = cid.reduce(function(accumulator, currentValue){
@@ -71,19 +71,19 @@ function checkCashRegister(price, cash, cid){
 		return accumulator;
 	},0);
 
-	var change = cash - price;
-	if (totalMoney === change){
-		info.status = "CLOSED";
-		info.change = cid;
-		return info;
+	var changes = cash - price;
+	if (totalMoney === changes){
+		changesDetail.status = "CLOSED";
+		changesDetail.changes = cid;
+		return changesDetail;
 	}
-	if (totalMoney < change){
-		info.status = "INSUFFICIENT_FUNDS";
-		info.change = [];
-		return info;
+	if (totalMoney < changes){
+		changesDetail.status = "INSUFFICIENT_FUNDS";
+		changesDetail.changes = [];
+		return changesDetail;
 	}
-	info = getChanges(change.toFixed(2), cid);
-	return(info);
+	changesDetail = getChanges(changes.toFixed(2), cid);
+	return(changesDetail);
 }
 
 console.log(checkCashRegister(19.5, 20, [["PENNY", 1.01], ["NICKEL", 2.05], 
